@@ -72,24 +72,29 @@ public class MovieController {
 //    public MovieDTO updateMovie( Long movieId, MovieRequest movieRequest) {
 //        return movieService.updateMovie(movieId, movieRequest);
 //    }
-public CompletionStage<Result> update(Http.Request request) {
-    JsonNode json = request.body().asJson();
-    return supplyAsync(() -> {
-        if (json == null) {
-            return badRequest(Util.createResponse("Expecting Json data", false));
-        }
-        MovieRequest fromJson = Json.fromJson(json, MovieRequest.class);
-        Optional<Movie> movieOptional = movieService.updateMovie(fromJson.getId(),fromJson);
-        return movieOptional.map(movie -> {
-            if (movie == null) {
-                return notFound(Util.createResponse("Movie not found", false));
-            }
-            JsonNode jsonObject = Json.toJson(movie);
-            movieRepository.save(movieOptional);
-            return ok(Util.createResponse(jsonObject, true));
-        }).orElse(internalServerError(Util.createResponse("Could not create data.", false)));
-    }, ec.current());
+    public Movie update(MovieRequest request) {
+        Optional<Movie> movieOptional = movieService.updateMovie(request.getId(), request);
+        return movieOptional.stream().findFirst().orElse(null);
 }
+
+//public CompletionStage<Result> update(Http.Request request) {
+//    JsonNode json = request.body().asJson();
+//    return supplyAsync(() -> {
+//        if (json == null) {
+//            return badRequest(Util.createResponse("Expecting Json data", false));
+//        }
+//        MovieRequest fromJson = Json.fromJson(json, MovieRequest.class);
+//        Optional<Movie> movieOptional = movieService.updateMovie(fromJson.getId(),fromJson);
+//        return movieOptional.map(movie -> {
+//            if (movie == null) {
+//                return notFound(Util.createResponse("Movie not found", false));
+//            }
+//            JsonNode jsonObject = Json.toJson(movie);
+//            movieRepository.save(movieOptional);
+//            return ok(Util.createResponse(jsonObject, true));
+//        }).orElse(internalServerError(Util.createResponse("Could not create data.", false)));
+//    }, ec.current());
+//}
 
     public CompletionStage<Result> retrieve(int id) {
         return supplyAsync(() -> {
@@ -113,3 +118,4 @@ public CompletionStage<Result> update(Http.Request request) {
 //    public void deleteMovie( Long movieId) {boolean deleted = movieService.deleteMovie(movieId);
 //        }
 }
+
